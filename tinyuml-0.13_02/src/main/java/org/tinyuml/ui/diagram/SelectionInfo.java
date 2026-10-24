@@ -72,6 +72,32 @@ public final class SelectionInfo {
   }
 
   /**
+   * Returns the number of selected elements. Selecting the empty area of the
+   * diagram selects the diagram itself, which is not counted.
+   * Creado para cumplir con el requerimiento RF-003.
+   * @param selected the selected elements, may be null
+   * @return the number of selected elements
+   */
+  public static int getSelectedCount(List<DiagramElement> selected) {
+    if (selected == null) return 0;
+    int count = 0;
+    for (DiagramElement element : selected) {
+      if (!(element instanceof Diagram)) count++;
+    }
+    return count;
+  }
+
+  /**
+   * Returns the status text with the number of selected elements.
+   * Creado para cumplir con el requerimiento RF-003.
+   * @param selected the selected elements, may be null
+   * @return the status text
+   */
+  public static String getCountText(List<DiagramElement> selected) {
+    return "Seleccionados: " + getSelectedCount(selected);
+  }
+
+  /**
    * Returns the category of the specified element.
    * @param element the element
    * @return the category name

@@ -85,6 +85,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private JLabel memLabel = new JLabel("    ");
   private JLabel countLabel = new JLabel("    ", JLabel.CENTER);
   private JLabel selectionLabel = new JLabel("    ", JLabel.CENTER);
+  private JLabel selectedCountLabel = new JLabel("    ", JLabel.CENTER);
   private UmlModel umlModel;
   private DiagramEditor currentEditor;
   private transient Timer timer = new Timer();
@@ -251,6 +252,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
     JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
     infoPanel.add(countLabel);
     infoPanel.add(selectionLabel);
+    infoPanel.add(selectedCountLabel);
     statusbar.add(infoPanel, BorderLayout.CENTER);
     statusbar.add(memLabel, BorderLayout.EAST);
     getContentPane().add(statusbar, BorderLayout.SOUTH);
@@ -325,6 +327,9 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private void updateSelectionInfo(DiagramEditor editor) {
     selectionLabel.setText(
       SelectionInfo.getStatusText(editor.getSelectedElements()));
+    // RF-003: number of selected elements
+    selectedCountLabel.setText(
+      SelectionInfo.getCountText(editor.getSelectedElements()));
   }
 
   /**

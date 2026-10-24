@@ -140,4 +140,33 @@ public class SelectionInfoTest extends TestCase {
     assertEquals("2 elementos seleccionados",
       SelectionInfo.getStatusText(list(class1, class2)));
   }
+
+  /**
+   * RF-003: without a selection the count is zero.
+   */
+  public void testSelectedCountNoSelection() {
+    assertEquals(0, SelectionInfo.getSelectedCount(null));
+    assertEquals("Seleccionados: 0",
+      SelectionInfo.getCountText(new ArrayList<DiagramElement>()));
+  }
+
+  /**
+   * RF-003: selecting the empty area of the diagram counts as zero.
+   */
+  public void testSelectedCountDiagram() {
+    assertEquals("Seleccionados: 0",
+      SelectionInfo.getCountText(list(diagram)));
+  }
+
+  /**
+   * RF-003: one or several selected elements are counted.
+   */
+  public void testSelectedCount() {
+    UmlNode clss = factory.createNode(ElementType.CLASS);
+    UmlNode pkg = factory.createNode(ElementType.PACKAGE);
+    UmlNode note = factory.createNode(ElementType.NOTE);
+    assertEquals("Seleccionados: 1", SelectionInfo.getCountText(list(clss)));
+    assertEquals("Seleccionados: 3",
+      SelectionInfo.getCountText(list(clss, pkg, note)));
+  }
 }
