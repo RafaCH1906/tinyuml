@@ -60,6 +60,7 @@ import org.tinyuml.ui.commands.SvgExporter;
 import org.tinyuml.ui.diagram.DiagramEditor;
 import org.tinyuml.ui.diagram.EditorMouseEvent;
 import org.tinyuml.ui.diagram.EditorStateListener;
+import org.tinyuml.ui.diagram.ElementCounter;
 import org.tinyuml.ui.diagram.SelectionListener;
 import org.tinyuml.util.ApplicationResources;
 import org.tinyuml.util.MethodCall;
@@ -80,6 +81,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private JTabbedPane tabbedPane;
   private JLabel coordLabel = new JLabel("    ");
   private JLabel memLabel = new JLabel("    ");
+  private JLabel countLabel = new JLabel("    ", JLabel.CENTER);
   private UmlModel umlModel;
   private DiagramEditor currentEditor;
   private transient Timer timer = new Timer();
@@ -213,6 +215,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
                               label.getText());
       }
     });
+    updateElementCount(currentEditor);
   }
 
   /**
@@ -241,6 +244,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private void installStatusbar() {
     JPanel statusbar = new JPanel(new BorderLayout());
     statusbar.add(coordLabel, BorderLayout.WEST);
+    statusbar.add(countLabel, BorderLayout.CENTER);
     statusbar.add(memLabel, BorderLayout.EAST);
     getContentPane().add(statusbar, BorderLayout.SOUTH);
   }
@@ -284,6 +288,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
     // spring loading is implemented here
     staticToolbarManager.doClick("SELECT_MODE");
     updateMenuAndToolbars(editor);
+    updateElementCount(editor);
   }
 
   /**
@@ -291,6 +296,17 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
    */
   public void elementRemoved(DiagramEditor editor) {
     updateMenuAndToolbars(editor);
+    updateElementCount(editor);
+  }
+
+  /**
+   * Updates the element count in the status bar for the specified editor.
+   * Creado para cumplir con el requerimiento RF-001.
+   * @param editor the editor
+   */
+  private void updateElementCount(DiagramEditor editor) {
+    countLabel.setText(
+      new ElementCounter(editor.getDiagram()).getStatusText());
   }
 
   /**
