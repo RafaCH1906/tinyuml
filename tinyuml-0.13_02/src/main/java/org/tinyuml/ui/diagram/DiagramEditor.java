@@ -41,6 +41,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -247,11 +248,41 @@ DiagramEditorNotification, DiagramOperations, NodeChangeListener {
   }
 
   /**
-   * Removes the current selection.
+   * Removes the current selection. If several elements are selected, the
+   * user is asked for confirmation first.
    */
   public void deleteSelection() {
-    Collection<DiagramElement> elements = getSelectedElements();
+    deleteSelection(true);
+  }
+
+  /**
+   * Removes the current selection.
+   * Modificado para cumplir con el requerimiento RF-004.
+   * @param askConfirmation if true and several elements are selected, the
+   * user has to confirm the deletion
+   */
+  public void deleteSelection(boolean askConfirmation) {
+    List<DiagramElement> elements = getSelectedElements();
+    int count = SelectionInfo.getSelectedCount(elements);
+    if (askConfirmation && count > 1 && !confirmDeletion(count)) {
+      // cancelled: the elements stay in the diagram
+      return;
+    }
     execute(new DeleteElementCommand(this, elements));
+  }
+
+  /**
+   * Asks the user to confirm the deletion of the selected elements.
+   * Creado para cumplir con el requerimiento RF-004.
+   * @param count the number of elements that will be deleted
+   * @return true if the user confirmed, false otherwise
+   */
+  protected boolean confirmDeletion(int count) {
+    return JOptionPane.showConfirmDialog(frame,
+      "Se eliminarán " + count + " elementos seleccionados.\n"
+      + "¿Desea continuar?", "Confirmar eliminación",
+      JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)
+      == JOptionPane.YES_OPTION;
   }
   /**
    * Pastes into this diagram the handed Elements

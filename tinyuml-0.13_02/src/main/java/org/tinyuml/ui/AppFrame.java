@@ -655,7 +655,8 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
    */
   public void cut(){
 	  copy();
-	  delete();
+	  // RF-004: cutting does not ask for confirmation
+	  getCurrentEditor().deleteSelection(false);
 	  selectionStateChanged();
   }
   /**
