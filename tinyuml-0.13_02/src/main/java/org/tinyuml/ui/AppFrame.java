@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -61,6 +62,7 @@ import org.tinyuml.ui.diagram.DiagramEditor;
 import org.tinyuml.ui.diagram.EditorMouseEvent;
 import org.tinyuml.ui.diagram.EditorStateListener;
 import org.tinyuml.ui.diagram.ElementCounter;
+import org.tinyuml.ui.diagram.SelectionInfo;
 import org.tinyuml.ui.diagram.SelectionListener;
 import org.tinyuml.util.ApplicationResources;
 import org.tinyuml.util.MethodCall;
@@ -82,6 +84,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private JLabel coordLabel = new JLabel("    ");
   private JLabel memLabel = new JLabel("    ");
   private JLabel countLabel = new JLabel("    ", JLabel.CENTER);
+  private JLabel selectionLabel = new JLabel("    ", JLabel.CENTER);
   private UmlModel umlModel;
   private DiagramEditor currentEditor;
   private transient Timer timer = new Timer();
@@ -216,6 +219,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
       }
     });
     updateElementCount(currentEditor);
+    updateSelectionInfo(currentEditor);
   }
 
   /**
@@ -244,7 +248,10 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private void installStatusbar() {
     JPanel statusbar = new JPanel(new BorderLayout());
     statusbar.add(coordLabel, BorderLayout.WEST);
-    statusbar.add(countLabel, BorderLayout.CENTER);
+    JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+    infoPanel.add(countLabel);
+    infoPanel.add(selectionLabel);
+    statusbar.add(infoPanel, BorderLayout.CENTER);
     statusbar.add(memLabel, BorderLayout.EAST);
     getContentPane().add(statusbar, BorderLayout.SOUTH);
   }
@@ -279,6 +286,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
    */
   public void stateChanged(DiagramEditor editor) {
     updateMenuAndToolbars(editor);
+    updateSelectionInfo(editor);
   }
 
   /**
@@ -307,6 +315,16 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
   private void updateElementCount(DiagramEditor editor) {
     countLabel.setText(
       new ElementCounter(editor.getDiagram()).getStatusText());
+  }
+
+  /**
+   * Updates the selected element information in the status bar.
+   * Creado para cumplir con el requerimiento RF-002.
+   * @param editor the editor
+   */
+  private void updateSelectionInfo(DiagramEditor editor) {
+    selectionLabel.setText(
+      SelectionInfo.getStatusText(editor.getSelectedElements()));
   }
 
   /**
@@ -340,6 +358,7 @@ implements EditorStateListener, AppCommandListener, SelectionListener {
     toolbarmanager.enableButton("COPY", hasSelection);
      
     toolbarmanager.enableButton("DELETE", hasSelection);
+    updateSelectionInfo(getCurrentEditor());
   }
 
   // ************************************************************************

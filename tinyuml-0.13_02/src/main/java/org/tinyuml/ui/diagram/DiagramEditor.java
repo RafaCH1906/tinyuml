@@ -431,6 +431,8 @@ DiagramEditorNotification, DiagramOperations, NodeChangeListener {
       SetLabelTextCommand command = new SetLabelTextCommand(label, text);
       execute(command);
       currentEditor.hideEditor();
+      // RF-002: a renamed element has to be updated in the status bar
+      notifyStateChanged();
       repaint();
       return true;
     }

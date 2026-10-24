@@ -265,6 +265,8 @@ public class SelectionHandler implements EditorMode {
   public void elementRemoved(DiagramElement element) {
     if (currentSelection.getElements().contains(element)) {
       currentSelection = NullSelection.getInstance();
+      // RF-002: the status bar has to show that nothing is selected anymore
+      notifyListeners();
     }
   }
 
