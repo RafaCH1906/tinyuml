@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -205,9 +208,14 @@ DiagramEditorNotification, DiagramOperations, NodeChangeListener {
    * This also influences the scroll pane which the component is contained in.
    */
   private void setToDiagramSize() {
+    // RF-005: the size depends on the zoom, so the scroll pane can reach the
+    // whole diagram
+    double scaleFactor = scaling.getScaleFactor();
     setPreferredSize(new Dimension(
-      (int) (diagram.getSize().getWidth() + MARGIN_RIGHT + MARGIN_LEFT),
-      (int) (diagram.getSize().getHeight() + MARGIN_BOTTOM + MARGIN_TOP)));
+      (int) ((diagram.getSize().getWidth() + MARGIN_RIGHT + MARGIN_LEFT)
+        * scaleFactor),
+      (int) ((diagram.getSize().getHeight() + MARGIN_BOTTOM + MARGIN_TOP)
+        * scaleFactor)));
     invalidate();
   }
 
@@ -626,7 +634,41 @@ DiagramEditorNotification, DiagramOperations, NodeChangeListener {
    */
   public void setScaling(Scaling aScaling) {
     scaling = aScaling;
+    setToDiagramSize();
+    revalidate();
     repaint();
+  }
+
+  /**
+   * Adjusts the zoom and the visible position, so all the elements of the
+   * diagram can be seen in the window. The position and size of the
+   * elements are not modified.
+   * Creado para cumplir con el requerimiento RF-005.
+   */
+  public void fitToWindow() {
+    if (!(getParent() instanceof JViewport)) return;
+    JViewport viewport = (JViewport) getParent();
+    Rectangle2D content = FitToWindow.getContentBounds(diagram);
+    if (content == null) {
+      // empty diagram: normal zoom, beginning of the diagram
+      setScaling(Scaling.SCALING_100);
+      viewport.setViewSize(getPreferredSize());
+      viewport.setViewPosition(new Point(0, 0));
+      return;
+    }
+    Dimension extent = viewport.getExtentSize();
+    double scaleFactor = FitToWindow.getScaleFactor(content,
+      extent.getWidth(), extent.getHeight());
+    setScaling(Scaling.createScaling(scaleFactor));
+    // update the view size right away, so the new position can be set
+    Dimension viewSize = getPreferredSize();
+    viewport.setViewSize(viewSize);
+    // center the elements in the visible area
+    int x = (int) (content.getCenterX() * scaleFactor - extent.width / 2.0);
+    int y = (int) (content.getCenterY() * scaleFactor - extent.height / 2.0);
+    x = Math.max(0, Math.min(x, viewSize.width - extent.width));
+    y = Math.max(0, Math.min(y, viewSize.height - extent.height));
+    viewport.setViewPosition(new Point(x, y));
   }
 
   /**

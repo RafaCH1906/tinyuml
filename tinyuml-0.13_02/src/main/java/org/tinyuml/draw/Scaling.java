@@ -43,6 +43,17 @@ public final class Scaling {
   }
 
   /**
+   * Creates a Scaling object with an arbitrary scaling factor. It is used to
+   * fit the diagram into the window.
+   * Creado para cumplir con el requerimiento RF-005.
+   * @param scaleFactor the scaling factor
+   * @return the Scaling object
+   */
+  public static Scaling createScaling(double scaleFactor) {
+    return new Scaling(scaleFactor);
+  }
+
+  /**
    * Returns the scaling factor.
    * @return the scaling factor
    */

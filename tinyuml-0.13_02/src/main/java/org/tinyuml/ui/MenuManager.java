@@ -120,6 +120,13 @@ public class MenuManager implements ActionListener {
     group.add(zoom100);
     group.add(zoom150);
     zoom100.setSelected(true);
+    // RF-005: fitting to the window is not one of the fixed zoom levels
+    final ButtonGroup zoomGroup = group;
+    JMenuItem fitToWindow = createMenuItem(viewMenu, "fittowindow");
+    fitToWindow.addActionListener(new ActionListener() {
+      /** {@inheritDoc} */
+      public void actionPerformed(ActionEvent e) { zoomGroup.clearSelection(); }
+    });
     viewMenu.addSeparator();
     JMenuItem showGrid = createCheckBoxMenuItem(viewMenu, "showgrid");
     showGrid.setSelected(true);
